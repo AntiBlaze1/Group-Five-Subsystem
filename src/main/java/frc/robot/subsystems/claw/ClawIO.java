@@ -1,4 +1,11 @@
 package frc.robot.subsystems.claw;
 
-public class ClawIO {
+import org.littletonrobotics.junction.AutoLog;
+
+public interface ClawIO {
+  @AutoLog
+  public static class ClawIOInputs {
+  }
+
+  public default void updateInputs(ClawIOInputs inputs) {}
 }

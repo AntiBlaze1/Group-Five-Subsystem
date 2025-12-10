@@ -28,7 +28,7 @@ public class Claw extends SubsystemBase {
             .withName("Claw Voltage");
   }
 
-  public Command runVelovity(DoubleSupplier rpm) {
+  public Command runVelocity(DoubleSupplier rpm) {
     return run(() -> io.setVelocity(rpm.getAsDouble()))
             .withName("Claw Velocity");
   }

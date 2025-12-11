@@ -23,4 +23,6 @@ public interface ClawIO {
   public default void setVelocity(double rpm) {}
 
   public default void setVoltage(double voltage) {}
+
+  public default void setPIDGains(double Kp, double Ki, double Kd) {}
 }

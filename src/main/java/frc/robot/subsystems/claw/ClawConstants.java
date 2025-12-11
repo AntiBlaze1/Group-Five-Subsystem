@@ -5,4 +5,5 @@ public class ClawConstants {
     public static final int MOTOR_ID = 0; //temp
     public static final int MAX_VELOCITY = 100;
     public static final int MAX_ACCELERATION = 20;
+
 }

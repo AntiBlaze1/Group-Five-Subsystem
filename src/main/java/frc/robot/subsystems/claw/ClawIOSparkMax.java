@@ -28,7 +28,7 @@ public class ClawIOSparkMax implements ClawIO {
 
         SparkFlexConfig config = new SparkFlexConfig();
 
-        config // I just copied these from CoralIntakeIOSparkMax
+        config
                 .idleMode(SparkBaseConfig.IdleMode.kBrake)
                 .voltageCompensation(12)
                 .smartCurrentLimit(NEO_CURRENT_LIMIT);
@@ -44,11 +44,8 @@ public class ClawIOSparkMax implements ClawIO {
     @Override
     public void updateInputs(ClawIOInputs inputs) {
         inputs.velocity = getVelocity();
-        inputs.appliedVoltage = motor.getAppliedOutput() * motor.getBusVoltage(); // what
-        inputs.motorCurrent =
-                motor
-                        .getOutputCurrent(); // You told me that this shouldn't be an array, so I'm guessing
-        // that both motors have the same.
+        inputs.appliedVoltage = motor.getAppliedOutput() * motor.getBusVoltage();
+        inputs.motorCurrent = motor.getOutputCurrent();
     }
 
     @Override
@@ -66,20 +63,19 @@ public class ClawIOSparkMax implements ClawIO {
         motor.setVoltage(voltage);
         Logger.recordOutput(
                 "Shooter/Set Voltage",
-                voltage); // Took this from ElevatorIOSparkMax, hoping this is what I'm supposed to do
+                voltage);
     }
 
     @Override
     public double getVoltage() {
         return motor.getAppliedOutput()
                 * motor
-                .getBusVoltage(); // idk maybe this is it idk what the difference between voltage and
-        // applied voltage is
+                .getBusVoltage();
     }
 
     @Override
     public void setVelocity(double rpm) {
-        double voltage = pidController.calculate(getVelocity(), rpm); //idk do i have to do anything special
+        double voltage = pidController.calculate(getVelocity(), rpm); 
 
         motor.setVoltage(voltage);
     }

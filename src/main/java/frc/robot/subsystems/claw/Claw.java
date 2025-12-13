@@ -11,7 +11,7 @@ import static frc.robot.subsystems.claw.ClawConstants.VOLTAGE_RANGE;
 
 public class Claw extends SubsystemBase {
   private ClawIO io;
-  private ClawIOInputsAutoLogged inputs=new ClawIOInputsAutoLogged();
+  private ClawIOInputsAutoLogged inputs = new ClawIOInputsAutoLogged();
 
   public Claw(ClawIO io) {
     this.io = io;
@@ -28,7 +28,7 @@ public class Claw extends SubsystemBase {
             .withName("Claw Voltage");
   }
 
-  public Command runVelocity(DoubleSupplier rpm) {
+  public Command runVelovity(DoubleSupplier rpm) {
     return run(() -> io.setVelocity(rpm.getAsDouble()))
             .withName("Claw Velocity");
   }

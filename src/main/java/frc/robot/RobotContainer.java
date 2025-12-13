@@ -14,8 +14,14 @@ import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.FeedForwardCharacterization;
+import frc.robot.subsystems.claw.Claw;
+import frc.robot.subsystems.claw.ClawConstants;
+import frc.robot.subsystems.claw.ClawIO;
+import frc.robot.subsystems.claw.ClawIOSim;
+import frc.robot.subsystems.claw.ClawIOSparkMax;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOReal;
@@ -26,6 +32,7 @@ import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOPhoton;
 import frc.robot.subsystems.vision.VisionIOSim;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+import frc.robot.subsystems.claw;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -35,9 +42,12 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
  */
 public class RobotContainer {
   // Subsystems
-  private final Drive drive;
+  private final Drive drive; 
+  
+  private final Claw claw; 
 
-  private Mechanism2d mech = new Mechanism2d(3, 3);
+
+  private Mechanism2d clawMech = new Mechanism2d(3, 3);
 
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
@@ -55,6 +65,7 @@ public class RobotContainer {
                 new ModuleIOSparkMax(2),
                 new ModuleIOSparkMax(3),
                 new VisionIOPhoton());
+        claw= new Claw(new ClawIOSparkMax());
         break;
 
         // Sim robot, instantiate physics sim IO implementations
@@ -67,6 +78,7 @@ public class RobotContainer {
                 new ModuleIOSim(),
                 new ModuleIOSim(),
                 new VisionIOSim());
+        claw= new Claw(new ClawIOSim());
         break;
 
         // Replayed robot, disable IO implementations
@@ -79,14 +91,18 @@ public class RobotContainer {
                 new ModuleIO() {},
                 new ModuleIO() {},
                 new VisionIO() {});
+        claw= new Claw(new ClawIO() {});
         break;
     }
 
     // Set up robot state manager
 
-    MechanismRoot2d root = mech.getRoot("pivot", 1, 0.5);
+    MechanismRoot2d clawSystemroot = clawMech.getRoot("Claw", 1, 0.5);
+    clawSystemroot.append(getArmMechanism()); 
+
     // add subsystem mechanisms
-    SmartDashboard.putData("Arm Mechanism", mech);
+    SmartDashboard.putData("Claw Mechanism", clawMech);
+
 
     // Set up auto routines
     /* NamedCommands.registerCommand(
@@ -103,9 +119,6 @@ public class RobotContainer {
             drive, drive::runCharacterizationVolts, drive::getCharacterizationVelocity));
 
     // Configure the button bindings
-    configureControls();
-    configureButtonBindings();
-  }
 
   /**
    * Use this method to define your button->command mappings. Buttons can be created by
@@ -113,26 +126,20 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing it to a {@link
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
-  private void configureButtonBindings() {
-    drive.setDefaultCommand(
-        DriveCommands.joystickDrive(drive, DRIVE_FORWARD, DRIVE_STRAFE, DRIVE_ROTATE));
 
-    DRIVE_SLOW.onTrue(new InstantCommand(DriveCommands::toggleSlowMode));
-
-    DRIVE_STOP.onTrue(
-        new InstantCommand(
-            () -> {
-              drive.stopWithX();
-              drive.resetYaw();
-            },
-            drive));
-  }
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
    *
    * @return the command to run in autonomous
    */
+  public Command clawCommand(){
+    return claw 
+      .runVelocity(ClawConstants.MAX_VELOCITY)
+      .andThen(new WaitCommand(7.0))
+      ()->MOTOR_ID.setVelocity(0);
+      ;
+  }
   public Command getAutonomousCommand() {
     return autoChooser.get();
   }

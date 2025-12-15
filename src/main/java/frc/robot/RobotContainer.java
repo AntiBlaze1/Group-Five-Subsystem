@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import static frc.robot.subsystems.claw.ClawConstants.MOTOR_ID;
 import static frc.robot.util.drive.DriveControls.*;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -32,7 +33,9 @@ import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOPhoton;
 import frc.robot.subsystems.vision.VisionIOSim;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
-import frc.robot.subsystems.claw;
+import frc.robot.subsystems.claw.Claw;
+
+import java.util.function.DoubleSupplier;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -55,50 +58,57 @@ public class RobotContainer {
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     switch (Constants.currentMode) {
-        // Real robot, instantiate hardware IO implementations
+      // Real robot, instantiate hardware IO implementations
       case REAL:
         drive =
-            new Drive(
-                new GyroIOReal(),
-                new ModuleIOSparkMax(0),
-                new ModuleIOSparkMax(1),
-                new ModuleIOSparkMax(2),
-                new ModuleIOSparkMax(3),
-                new VisionIOPhoton());
-        claw= new Claw(new ClawIOSparkMax());
+                new Drive(
+                        new GyroIOReal(),
+                        new ModuleIOSparkMax(0),
+                        new ModuleIOSparkMax(1),
+                        new ModuleIOSparkMax(2),
+                        new ModuleIOSparkMax(3),
+                        new VisionIOPhoton());
+        claw = new Claw(new ClawIOSparkMax());
         break;
 
-        // Sim robot, instantiate physics sim IO implementations
+      // Sim robot, instantiate physics sim IO implementations
       case SIM:
         drive =
-            new Drive(
-                new GyroIO() {},
-                new ModuleIOSim(),
-                new ModuleIOSim(),
-                new ModuleIOSim(),
-                new ModuleIOSim(),
-                new VisionIOSim());
-        claw= new Claw(new ClawIOSim());
+                new Drive(
+                        new GyroIO() {
+                        },
+                        new ModuleIOSim(),
+                        new ModuleIOSim(),
+                        new ModuleIOSim(),
+                        new ModuleIOSim(),
+                        new VisionIOSim());
+        claw = new Claw(new ClawIOSim());
         break;
 
-        // Replayed robot, disable IO implementations
+      // Replayed robot, disable IO implementations
       default:
         drive =
-            new Drive(
-                new GyroIO() {},
-                new ModuleIO() {},
-                new ModuleIO() {},
-                new ModuleIO() {},
-                new ModuleIO() {},
-                new VisionIO() {});
-        claw= new Claw(new ClawIO() {});
+                new Drive(
+                        new GyroIO() {
+                        },
+                        new ModuleIO() {
+                        },
+                        new ModuleIO() {
+                        },
+                        new ModuleIO() {
+                        },
+                        new ModuleIO() {
+                        },
+                        new VisionIO() {
+                        });
+        claw = new Claw(new ClawIO() {
+        });
         break;
     }
 
     // Set up robot state manager
 
     MechanismRoot2d clawSystemroot = clawMech.getRoot("Claw", 1, 0.5);
-    clawSystemroot.append(getArmMechanism()); 
 
     // add subsystem mechanisms
     SmartDashboard.putData("Claw Mechanism", clawMech);
@@ -114,10 +124,10 @@ public class RobotContainer {
 
     // Set up feedforward characterization
     autoChooser.addOption(
-        "Drive FF Characterization",
-        new FeedForwardCharacterization(
-            drive, drive::runCharacterizationVolts, drive::getCharacterizationVelocity));
-
+            "Drive FF Characterization",
+            new FeedForwardCharacterization(
+                    drive, drive::runCharacterizationVolts, drive::getCharacterizationVelocity));
+  }
     // Configure the button bindings
 
   /**
@@ -133,13 +143,14 @@ public class RobotContainer {
    *
    * @return the command to run in autonomous
    */
-  public Command clawCommand(){
+  public Command clawCommand() {
     return claw 
-      .runVelocity(ClawConstants.MAX_VELOCITY)
-      .andThen(new WaitCommand(7.0))
-      ()->MOTOR_ID.setVelocity(0);
-      ;
+      .runVelocity(()->ClawConstants.MAX_VELOCITY)
+            .andThen(new WaitCommand(7.0))
+            .andThen(claw.runVelocity(()->0));
+
   }
+
   public Command getAutonomousCommand() {
     return autoChooser.get();
   }

@@ -39,7 +39,7 @@ public class ClawIOSim implements ClawIO {
      */
     @Override
     public double getVelocity() {
-        return encoder.get();
+        return encoder.getVelocity();
     }
 
     /*

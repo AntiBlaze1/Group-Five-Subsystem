@@ -15,6 +15,10 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import org.littletonrobotics.junction.Logger;
 
+/*
+Real implementation for the ClawIO.
+ */
+
 public class ClawIOSparkMax implements ClawIO {
     private SparkFlex motor;
     private RelativeEncoder encoder;
@@ -48,16 +52,25 @@ public class ClawIOSparkMax implements ClawIO {
         inputs.motorCurrent = motor.getOutputCurrent();
     }
 
+    /*
+    Implementation of getVelocity()
+     */
     @Override
     public double getVelocity() {
         return encoder.getVelocity();
     }
 
+    /*
+    Implementation of setPIDGains()
+     */
     @Override
     public void setPIDGains(double Kp, double Ki, double Kd) {
         pidController.setPID(Kp, Ki, Kd);
     }
 
+    /*
+    Implementation of setVoltage()
+     */
     @Override
     public void setVoltage(double voltage) {
         motor.setVoltage(voltage);
@@ -66,6 +79,9 @@ public class ClawIOSparkMax implements ClawIO {
                 voltage);
     }
 
+    /*
+    Implementation of getVoltage()
+     */
     @Override
     public double getVoltage() {
         return motor.getAppliedOutput()
@@ -73,6 +89,9 @@ public class ClawIOSparkMax implements ClawIO {
                 .getBusVoltage();
     }
 
+    /*
+    Implementation of setVelocity()
+     */
     @Override
     public void setVelocity(double rpm) {
         double voltage = pidController.calculate(getVelocity(), rpm); 

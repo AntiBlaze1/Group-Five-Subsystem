@@ -75,7 +75,7 @@ public class ClawIOSparkMax implements ClawIO {
     public void setVoltage(double voltage) {
         motor.setVoltage(voltage);
         Logger.recordOutput(
-                "Shooter/Set Voltage",
+                "Claw/Set Voltage",
                 voltage);
     }
 

@@ -18,13 +18,13 @@ Alright I dont know what I did here but this wont run i just copied iosparkmax a
 
 public class ClawIOSim implements ClawIO {
     private SparkFlex motor;
-    private Encoder encoder;
-    private EncoderSim sim=new EncoderSim(encoder);
+    private RelativeEncoder encoder;
 
     private ProfiledPIDController pidController = new ProfiledPIDController(0, 0, 0, new TrapezoidProfile.Constraints(MAX_VELOCITY,MAX_ACCELERATION));
 
     public ClawIOSim() {
         motor=new SparkFlex(ClawConstants.MOTOR_ID, SparkLowLevel.MotorType.kBrushless);
+        encoder=motor.getEncoder();
     }
 
     @Override
